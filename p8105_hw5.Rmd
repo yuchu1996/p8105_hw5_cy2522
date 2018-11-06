@@ -1,0 +1,50 @@
+---
+title: "p8105_hw5"
+author: "Chu YU"
+date: "2018-11-4"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+theme_set(theme_bw() + theme(legend.position = "right"))
+```
+
+#problem 1
+
+### data cleaning
+```{r}
+## import data and clean data
+sdy_df = 
+    tibble(file_name = list.files(path = "./data/")) %>% 
+    mutate(subject_df = map(str_c("./data/", file_name), ~read_csv(.x))) %>% 
+    unnest() %>%
+    separate(file_name, into = c("group", "id"), sep = "_") %>% 
+    gather(key = week, value = value, week_1:week_8) %>% 
+    mutate(id = factor(str_replace(id, ".csv", "")),
+        week = as.numeric(str_replace(week, "week_", "")))
+
+```
+
+### making plots about the study
+```{r}
+##spaghetti plot 
+sdy_df %>%
+  ggplot(aes(x = week, y = value, color = group)) +
+  geom_line(aes(group = id)) +
+  geom_smooth(se = F) +
+  facet_grid(.~ group) +
+  labs(
+    title = "spaghetti plot of observations on each subject over time",
+    x = "week",
+    y = "study value"
+  ) +
+  viridis::scale_color_viridis(
+    name = "Location", 
+    discrete = TRUE)
+  
+  
+```
+
+
